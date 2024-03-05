@@ -1,4 +1,4 @@
-import { AES_MODES_VALUES } from "./App";
+import { AES_MODES, AES_MODES_VALUES } from "./App";
 
 const cryptoSubtle = window.crypto.subtle;
 
@@ -20,13 +20,12 @@ export const generateCryptoKey = async (algo: AES_MODES_VALUES) => {
 export const encrypt = async (
   text: string,
   cryptoKey: CryptoKey,
-  algo: AES_MODES_VALUES
+  algo: AES_MODES_VALUES,
+  iv: Uint8Array
 ) => {
-  let iv, encryptedBuffer;
-  console.log(algo);
+  let encryptedBuffer;
   switch (algo) {
     case "AES-CBC":
-      iv = crypto.getRandomValues(new Uint8Array(16));
       encryptedBuffer = await cryptoSubtle.encrypt(
         {
           name: "AES-CBC",
@@ -38,7 +37,6 @@ export const encrypt = async (
 
       return { encryptedBuffer, cryptoKey, iv };
     case "AES-GCM":
-      iv = crypto.getRandomValues(new Uint8Array(12));
       encryptedBuffer = await cryptoSubtle.encrypt(
         {
           name: "AES-GCM",
@@ -50,7 +48,6 @@ export const encrypt = async (
 
       return { encryptedBuffer, cryptoKey, iv };
     case "AES-CTR":
-      iv = crypto.getRandomValues(new Uint8Array(16));
       encryptedBuffer = await cryptoSubtle.encrypt(
         {
           name: "AES-CTR",
@@ -60,7 +57,7 @@ export const encrypt = async (
         cryptoKey,
         encode(text)
       );
-      return { encryptedBuffer, cryptoKey, iv };
+      return { encryptedBuffer, cryptoKey };
     default:
       break;
   }
@@ -73,23 +70,29 @@ export const deriveEncryptionKeyFromCryptoKey = async (
   return exportedkey.k;
 };
 export const deriveCryptoKeyfromEncryptionKey = async (
-  encryptionKey: string
+  encryptionKey: string,
+  name: AES_MODES_VALUES
 ) => {
+  const alg = {
+    [AES_MODES.CTR]: "A128CTR",
+    [AES_MODES.CBC]: "A128CBC",
+    [AES_MODES.GCM]: "A128GCM",
+  };
   const cryptoKey = await window.crypto.subtle.importKey(
     "jwk",
     {
-      alg: "A128CBC",
+      alg: alg[name],
       ext: true,
       k: encryptionKey,
       key_ops: ["encrypt", "decrypt"],
       kty: "oct",
     },
     {
-      name: "AES-CBC",
+      name,
       length: 128,
     },
     false,
-    ["decrypt"]
+    ["encrypt", "decrypt"]
   );
   return cryptoKey;
 };

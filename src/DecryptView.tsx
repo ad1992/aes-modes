@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { dataToBytes, decrypt } from "./crypto";
+import {
+  dataToBytes,
+  decrypt,
+  deriveEncryptionKeyFromCryptoKey,
+} from "./crypto";
 import Error from "./Error";
 import { AES_MODES_VALUES } from "./App";
 
@@ -54,7 +58,10 @@ const DecyrptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
               const encryptedBuffer = dataToBytes(
                 sanitizeInput(encryptedText, "Encrypted Text")
               );
-
+              const encryptionKey = await deriveEncryptionKeyFromCryptoKey(
+                cryptoKey
+              );
+              console.log("DECRYPT ", encryptionKey);
               const data = await decrypt(encryptedBuffer, cryptoKey, iv, mode);
               setDecryptedText(data);
               setError(null);

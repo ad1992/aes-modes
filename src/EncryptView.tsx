@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CopyToClipboard from "./CopyToClipboard";
 import { encrypt, generateCryptoKey } from "./crypto";
 import Placeholder from "./Placeholder";
-import { AES_MODES_VALUES } from "./App";
+import { AES_MODES, AES_MODES_VALUES } from "./App";
 import ErrorComp from "./Error";
 
 declare global {
@@ -26,6 +26,7 @@ const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
   const [iv, setIV] = useState<Uint8Array>(initialIv);
   const [cryptoKey, setCryptoKey] = useState(initialCryptoKey);
   const [error, setError] = useState<string | undefined | null>(null);
+  const prevMode = useRef<AES_MODES_VALUES>(AES_MODES.CTR);
 
   useEffect(() => {
     return () => {
@@ -43,9 +44,39 @@ const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
     };
   }, [iv, message, cryptoKey, encryptedBuffer]);
 
+  const encryptMessage = useCallback(async () => {
+    try {
+      if (!message) {
+        return;
+      }
+
+      const currentCryptoKey = await generateCryptoKey(mode);
+      setCryptoKey(currentCryptoKey);
+      const currentIV = window.crypto.getRandomValues(new Uint8Array(16));
+      setIV(currentIV);
+
+      const data = await encrypt(message, currentCryptoKey, mode, currentIV);
+
+      if (!data) {
+        throw new Error("Encryption failed");
+      }
+      setEncryptedBuffer(data.encryptedBuffer);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }, [mode, message]);
+
   const renderEncryptedContent = (encryptedBuffer: ArrayBuffer) => {
     return new Uint8Array(encryptedBuffer);
   };
+
+  useEffect(() => {
+    if (prevMode.current !== mode) {
+      prevMode.current = mode;
+      encryptMessage();
+    }
+  }, [mode, prevMode, encryptMessage]);
+
   return (
     <div className="flex flex-col align-items-center justify-content-center">
       <div className="flex flex-col" style={{ width: "50%" }}>
@@ -60,27 +91,7 @@ const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
           }}
         ></textarea>
 
-        <button
-          className="flex-item encrypt-btn"
-          onClick={async () => {
-            try {
-              if (!message) {
-                return;
-              }
-              const cryptoKey = await generateCryptoKey(mode);
-              setCryptoKey(cryptoKey);
-              const data = await encrypt(message, cryptoKey, mode);
-
-              if (!data) {
-                throw new Error("Encryption failed");
-              }
-              setEncryptedBuffer(data.encryptedBuffer);
-              setIV(data.iv);
-            } catch (err: any) {
-              setError(err.message);
-            }
-          }}
-        >
+        <button className="flex-item encrypt-btn" onClick={encryptMessage}>
           {" "}
           Encrypt
         </button>
