@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { dataToBytes, decrypt } from "./crypto";
 import Error from "./Error";
+import { AES_MODES_VALUES } from "./App";
 
 const REGEX_FOR_EXTRACTING_TEXT_FROM_INPUT = /\[(.*)\]/;
 
-const DecyrptView = () => {
+const DecyrptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
   const sanitizeInput = (
     input: string,
     type: "Encrypted Text" | "Initialization Vector"
@@ -54,7 +55,7 @@ const DecyrptView = () => {
                 sanitizeInput(encryptedText, "Encrypted Text")
               );
 
-              const data = await decrypt(encryptedBuffer, cryptoKey, iv);
+              const data = await decrypt(encryptedBuffer, cryptoKey, iv, mode);
               setDecryptedText(data);
               setError(null);
             } catch (err) {

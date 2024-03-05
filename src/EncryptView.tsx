@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import CopyToClipboard from "./CopyToClipboard";
-import { encode, encrypt, generateCryptoKey } from "./crypto";
+import { encrypt, generateCryptoKey } from "./crypto";
 import Placeholder from "./Placeholder";
+import { AES_MODES_VALUES } from "./App";
+import ErrorComp from "./Error";
 
 declare global {
   interface Window {
     data?: any;
   }
 }
-const EncryptView = () => {
+
+const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
   const {
     iv: initialIv,
     encryptedBuffer: initialEncryptedBuffer,
@@ -21,10 +24,9 @@ const EncryptView = () => {
     initialEncryptedBuffer
   );
   const [iv, setIV] = useState<Uint8Array>(initialIv);
-  const [encodeData, setEncodeData] = useState<Uint8Array>(encode(message));
   const [cryptoKey, setCryptoKey] = useState(initialCryptoKey);
-  const [, setError] = useState<string | undefined | null>(null);
-    
+  const [error, setError] = useState<string | undefined | null>(null);
+
   useEffect(() => {
     return () => {
       window.data = {
@@ -32,14 +34,14 @@ const EncryptView = () => {
         encrypt: {
           iv,
           encryptedBuffer,
-          encodeData,
+
           cryptoKey,
           extractable: true,
           message,
         },
       };
     };
-  }, [iv, encodeData, message, cryptoKey, encryptedBuffer]);
+  }, [iv, message, cryptoKey, encryptedBuffer]);
 
   const renderEncryptedContent = (encryptedBuffer: ArrayBuffer) => {
     return new Uint8Array(encryptedBuffer);
@@ -55,7 +57,6 @@ const EncryptView = () => {
           value={message}
           onChange={(event) => {
             setMessage(event.target.value);
-            setEncodeData(encode(event.target.value));
           }}
         ></textarea>
 
@@ -66,13 +67,15 @@ const EncryptView = () => {
               if (!message) {
                 return;
               }
-              const cryptoKey = await generateCryptoKey(true);
+              const cryptoKey = await generateCryptoKey(mode);
               setCryptoKey(cryptoKey);
-              const data = await encrypt(message, cryptoKey);
+              const data = await encrypt(message, cryptoKey, mode);
+
+              if (!data) {
+                throw new Error("Encryption failed");
+              }
               setEncryptedBuffer(data.encryptedBuffer);
               setIV(data.iv);
-
-              setEncodeData(encode(message));
             } catch (err: any) {
               setError(err.message);
             }
@@ -101,6 +104,7 @@ const EncryptView = () => {
           </label>
         </div>
       </div>
+      {error && <ErrorComp error={error} />}
     </div>
   );
 };

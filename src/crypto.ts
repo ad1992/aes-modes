@@ -1,33 +1,69 @@
+import { AES_MODES_VALUES } from "./App";
+
 const cryptoSubtle = window.crypto.subtle;
-const CRYPTO_ALGO_NAME = "AES-CBC";
 
 export const encode = (text: string) => {
   return new TextEncoder().encode(text);
 };
 
-export const generateCryptoKey = async (extractable: boolean) => {
+export const generateCryptoKey = async (algo: AES_MODES_VALUES) => {
   const key = await window.crypto.subtle.generateKey(
     {
-      name: CRYPTO_ALGO_NAME,
+      name: algo,
       length: 128,
     },
-    extractable,
+    true,
     ["encrypt", "decrypt"]
   );
   return key;
 };
-export const encrypt = async (text: string, cryptoKey: CryptoKey) => {
-  const iv = crypto.getRandomValues(new Uint8Array(16));
-  const encryptedBuffer = await cryptoSubtle.encrypt(
-    {
-      name: CRYPTO_ALGO_NAME,
-      iv,
-    },
-    cryptoKey,
-    encode(text)
-  );
+export const encrypt = async (
+  text: string,
+  cryptoKey: CryptoKey,
+  algo: AES_MODES_VALUES
+) => {
+  let iv, encryptedBuffer;
+  console.log(algo);
+  switch (algo) {
+    case "AES-CBC":
+      iv = crypto.getRandomValues(new Uint8Array(16));
+      encryptedBuffer = await cryptoSubtle.encrypt(
+        {
+          name: "AES-CBC",
+          iv,
+        },
+        cryptoKey,
+        encode(text)
+      );
 
-  return { encryptedBuffer, cryptoKey, iv };
+      return { encryptedBuffer, cryptoKey, iv };
+    case "AES-GCM":
+      iv = crypto.getRandomValues(new Uint8Array(12));
+      encryptedBuffer = await cryptoSubtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv,
+        },
+        cryptoKey,
+        encode(text)
+      );
+
+      return { encryptedBuffer, cryptoKey, iv };
+    case "AES-CTR":
+      iv = crypto.getRandomValues(new Uint8Array(16));
+      encryptedBuffer = await cryptoSubtle.encrypt(
+        {
+          name: "AES-CTR",
+          counter: iv,
+          length: 64,
+        },
+        cryptoKey,
+        encode(text)
+      );
+      return { encryptedBuffer, cryptoKey, iv };
+    default:
+      break;
+  }
 };
 
 export const deriveEncryptionKeyFromCryptoKey = async (
@@ -68,16 +104,45 @@ export const dataToBytes = (data: string | Array<string>) => {
 export const decrypt = async (
   encryptedData: Uint8Array,
   cryptoKey: CryptoKey,
-  iv: Uint8Array
+  iv: Uint8Array,
+  algo: AES_MODES_VALUES
 ) => {
-  const decryptedBuffer = await cryptoSubtle.decrypt(
-    {
-      name: CRYPTO_ALGO_NAME,
-      iv,
-    },
-    cryptoKey,
-    encryptedData
-  );
+  let decryptedBuffer;
+  switch (algo) {
+    case "AES-CBC":
+      decryptedBuffer = await cryptoSubtle.decrypt(
+        {
+          name: "AES-CBC",
+          iv,
+        },
+        cryptoKey,
+        encryptedData
+      );
+      break;
+
+    case "AES-GCM":
+      decryptedBuffer = await cryptoSubtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv,
+        },
+        cryptoKey,
+        encryptedData
+      );
+      break;
+    case "AES-CTR":
+    default:
+      decryptedBuffer = await cryptoSubtle.decrypt(
+        {
+          name: "AES-CTR",
+          counter: iv,
+          length: 64,
+        },
+        cryptoKey,
+        encryptedData
+      );
+  }
+
   const decryptedData = new TextDecoder().decode(decryptedBuffer);
   return decryptedData;
 };
