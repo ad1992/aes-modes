@@ -68,7 +68,8 @@
     resize: none;
   }
 
-  label {
+  label,
+  legend {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -89,6 +90,11 @@
     box-shadow: 0 0 0 1px #aaa;
   }
 
+  input[type="radio"] {
+    margin: 5px;
+    box-shadow: none;
+  }
+
   .error {
     color: red;
     font-weight: bold;
@@ -103,7 +109,7 @@
     margin: 20px 0;
     width: 100%;
     max-height: 330px;
-    min-height: 230px;
+    min-height: 130px;
     overflow-y: auto;
     text-align: left;
     display: flex;
@@ -152,5 +158,19 @@
     font-size: 46px;
     font-weight: bold;
     color: #1c7ed6;
+  }
+
+  .aes-options {
+    border: none;
+    /* width: 50%; */
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    /* padding: 0px; */
+    margin-top: 15px;
+
+    label {
+      color: #12b886;
+    }
   }
 }

@@ -8,8 +8,18 @@ const VIEW = {
   ENCRYPT: 0,
   DECRYPT: 1,
 };
+
+export const AES_MODES = {
+  CBC: "AES-CBC",
+  GCM: "AES-GCM",
+  CTR: "AES-CTR",
+};
+
+export type AES_MODES_VALUES = (typeof AES_MODES)[keyof typeof AES_MODES];
+
 function App() {
   const [activeView, setActiveView] = useState(VIEW.ENCRYPT);
+  const [mode, setMode] = useState<AES_MODES_VALUES>(AES_MODES.CTR);
   return (
     <div className="App">
       <GitHubCorner />
@@ -28,7 +38,45 @@ function App() {
           Decrypt
         </button>
       </div>
-      {activeView === VIEW.ENCRYPT ? <EncryptView /> : <DecyrptView />}
+      <fieldset className="aes-options">
+        <legend>AES Modes</legend>
+        <div className="flex">
+          <input
+            type="radio"
+            id="aes-ctr"
+            name="aes-ctr"
+            value="AES-CTR"
+            checked={mode === AES_MODES.CTR}
+            onChange={() => setMode(AES_MODES.CTR)}
+          />
+          <label htmlFor="aes-ctr">AES-CTR</label>
+
+          <input
+            type="radio"
+            id="aes-cbc"
+            name="aes-cbc"
+            value="AES-CBC"
+            checked={mode === AES_MODES.CBC}
+            onChange={() => setMode(AES_MODES.CBC)}
+          />
+          <label htmlFor="aes-cbc">AES-CBC</label>
+
+          <input
+            type="radio"
+            id="aes-gcm"
+            name="aes-gcm"
+            value="aes-gcm"
+            checked={mode === AES_MODES.GCM}
+            onChange={() => setMode(AES_MODES.GCM)}
+          />
+          <label htmlFor="aes-gcm">AES-GCM</label>
+        </div>
+      </fieldset>
+      {activeView === VIEW.ENCRYPT ? (
+        <EncryptView mode={mode} />
+      ) : (
+        <DecyrptView mode={mode} />
+      )}
     </div>
   );
 }
