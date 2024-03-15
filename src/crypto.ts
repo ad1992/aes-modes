@@ -145,7 +145,6 @@ export const decrypt = async (
         encryptedData
       );
   }
-
   const decryptedData = new TextDecoder().decode(decryptedBuffer);
   return decryptedData;
 };

@@ -48,6 +48,7 @@ function App() {
             value="AES-CTR"
             checked={mode === AES_MODES.CTR}
             onChange={() => setMode(AES_MODES.CTR)}
+            disabled={activeView === VIEW.DECRYPT}
           />
           <label htmlFor="aes-ctr">AES-CTR</label>
 
@@ -58,6 +59,7 @@ function App() {
             value="AES-CBC"
             checked={mode === AES_MODES.CBC}
             onChange={() => setMode(AES_MODES.CBC)}
+            disabled={activeView === VIEW.DECRYPT}
           />
           <label htmlFor="aes-cbc">AES-CBC</label>
 
@@ -68,6 +70,7 @@ function App() {
             value="aes-gcm"
             checked={mode === AES_MODES.GCM}
             onChange={() => setMode(AES_MODES.GCM)}
+            disabled={activeView === VIEW.DECRYPT}
           />
           <label htmlFor="aes-gcm">AES-GCM</label>
         </div>
