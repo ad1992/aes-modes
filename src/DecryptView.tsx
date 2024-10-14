@@ -22,9 +22,9 @@ const DecyrptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
     return val.split(",");
   };
   const { encryptedText: initialEncryptedText = "" } =
-    window.data?.decrypt || {};
+    window.data?.decrypt ?? {};
   const [encryptedText, setEncryptedText] = useState(initialEncryptedText);
-  const { cryptoKey, iv } = window.data?.encrypt;
+  const { cryptoKey, iv } = window.data?.encrypt ?? {};
 
   const [error, setError] = useState<string | null>(null);
   const [decryptedText, setDecryptedText] = useState("");

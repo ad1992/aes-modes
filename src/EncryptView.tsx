@@ -17,7 +17,7 @@ const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
     encryptedBuffer: initialEncryptedBuffer,
     cryptoKey: initialCryptoKey = null,
     message: initialMessage,
-  } = window.data?.encrypt || {};
+  } = window.data?.encrypt ?? {};
 
   const [message, setMessage] = useState<string>(initialMessage);
   const [encryptedBuffer, setEncryptedBuffer] = useState<ArrayBuffer | null>(
