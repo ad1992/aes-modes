@@ -35,7 +35,6 @@ const EncryptView = ({ mode }: { mode: AES_MODES_VALUES }) => {
         encrypt: {
           iv,
           encryptedBuffer,
-
           cryptoKey,
           extractable: true,
           message,

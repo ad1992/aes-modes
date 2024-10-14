@@ -74,7 +74,7 @@
     flex-direction: column;
     align-items: flex-start;
     margin: 5px;
-    color: #748ffc;
+    color: #343a40;
     font-size: 20px;
     font-weight: bold;
   }
@@ -82,7 +82,6 @@
   textarea,
   input {
     font-size: 20px;
-    font-weight: 500;
     color: #868e96;
     font-weight: bold;
     border: none;
@@ -136,7 +135,7 @@
     font-weight: bold;
     width: 140px;
     &.active {
-      border-bottom: 3px solid #748ffc;
+      border-bottom: 3px solid #1971c2;
     }
   }
   .switch-view {
@@ -145,7 +144,7 @@
 
   .encrypt-btn,
   .decrypt-btn {
-    background: #9775fa;
+    background: #1971c2;
     color: white;
     font-size: 20px;
     border: none;
@@ -170,7 +169,7 @@
     margin-top: 15px;
 
     label {
-      color: #12b886;
+      color: #099268;
     }
   }
 }
